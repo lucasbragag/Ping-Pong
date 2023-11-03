@@ -19,6 +19,9 @@
           canvasCtx = canvasEl.getContext("2d"),
           gapX = 10
 
+
+        const mouse = {x: 0, y: 0}
+
         const lineWidth = 15
 
         const field = {
@@ -49,13 +52,18 @@
 
         const leftPaddle = {
             x: gapX,
-            y: 100,
+            y: 0,
             w: line.w,
             h: 200,
+            _move: function() {
+                this.y = mouse.y - this.h / 2
+            },
             draw: function() {
                 // desenho raquete esquerda
                 canvasCtx.fillStyle = "#ffffff"
                 canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+
+                this._move()
             }
 
         }
@@ -75,7 +83,7 @@
 
         const score = {
             human: 1,
-            computer: 3,
+            computer: 2,
             draw: function() {
                 // desenho placar 
                 canvasCtx.font = "bold 72px Arial"
@@ -91,12 +99,19 @@
             x: 200,
             y: 200,
             r: 20,
+            speed: 5,
+            _move: function () {
+                this.x += 1 * this.speed
+                this.y += 1 * this.speed
+            },
             draw: function() {
                 // desenho bola 
                 canvasCtx.fillStyle = "#ffffff"
                 canvasCtx.beginPath()
                 canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
                 canvasCtx.fill()
+
+                this._move()
             }
 
         }
@@ -120,10 +135,33 @@
                
         }
 
-        setup()
-        draw()
 
-        window.setTimeout(draw, 1000 / 60)
+        window.animateFrame = (function () {
+            return (
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                    return window.setTimeout(callback, 1000 / 60)
+                }
+            )
+        })()
+
+        function main () {
+            animateFrame(main)
+            draw()
+        }
+
+        setup()
+        main()
+
+        canvasEl.addEventListener('mousemove', function(e) {
+            mouse.x = e.pageX
+            mouse.y = e.pageY
+
+        })
     </script>
 </body>
 </html>
